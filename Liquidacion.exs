@@ -9,7 +9,12 @@ defmodule Liquidacion do
   @entre_5_y_10_porciento 0.1
   @mayor_a_10_porciento 0.30
 
-  #Bonificacion por 120 kilogramos
+  #Bonificacion por 120 kilogramos o mas >=
   @bonificacion_120_kg 8_000.0
+
+  #Descuento de alimentacion por dia trabajado (al menos un pesaje valido)
+  @descuento_alimentacion 12_000
+
+  
 
 end
