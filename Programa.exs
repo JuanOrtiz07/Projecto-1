@@ -11,11 +11,11 @@ defmodule Programa do
   @descuento_calidad_mayor_10 0.30
 
 
-  defmain do
+  def main do
 
   end
 
-  deferrores_validacion_pesajes do
+  def errores_validacion_pesajes do
     {:error, :recolector_desconocido} #El código del recolector existe
     {:error, :lote_desconocido} #El lote existe
     {:error, :dia_invalido} #El día es un entero entre 1 y 6
