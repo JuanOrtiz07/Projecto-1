@@ -21,7 +21,7 @@ defmodule Liquidacion do
 
   def ajuste(porcentaje_verdes) when porcentaje_verdes in 1..2, do: @menor_2_porciento
   def ajuste(porcentaje_verdes) when porcentaje_verdes in 2..5, do: @entre_2_y_5_porciento
-  def ajuste(porcentaje_verdes) when porcentaje_verdes in 5..10, do: @@entre_5_y_10_porciento
+  def ajuste(porcentaje_verdes) when porcentaje_verdes in 5..10, do: @entre_5_y_10_porciento
   def ajuste(porcentaje_verdes) when porcentaje_verdes > 10, do: @mayor_a_10_porciento
 
 end
