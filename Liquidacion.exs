@@ -48,7 +48,9 @@ defmodule Liquidacion do
   def descuento_alimentacion(false, _dias_trabajados), do: 0.0
 
   #Funcion de liquidacion total
-  def liquidacion(recolectro, pesajes_validos) do
+  #%{codigo: "R01", nombre: "Luz Marina Ospina", alimentacion: true},
+  #%{recolector: "R01", lote: "L3", dia: 1, kilos: 40, verdes: 5},
+  def liquidar(recolector, pesajes_validos) do
 
   end
 end
