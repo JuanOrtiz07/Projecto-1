@@ -47,4 +47,8 @@ defmodule Liquidacion do
   def descuento_alimentacion(true, dias_trabajados), do: dias_trabajados*@descuento_alimentacion
   def descuento_alimentacion(false, _dias_trabajados), do: 0.0
 
+  #Funcion de liquidacion total
+  def liquidacion(valor_pesaje, bonificaciones, descuento_alimentacion) do
+    liquidacion_neto=valor_pesaje+bonificaciones-descuento_alimentacion
+  end
 end
