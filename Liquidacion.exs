@@ -19,6 +19,9 @@ defmodule Liquidacion do
   @entre_5_y_10_porciento 0.9
   @mayor_a_10_porciento 0.7
 
+  #atributo de los kilos a alcanzar para obtener la bonificacion por kg
+  @kilos_para_bonificacion 120
+
   #Bonificacion por 120 kilogramos o mas >=
   @bonificacion_120_kg 8_000.0
 
@@ -30,10 +33,18 @@ defmodule Liquidacion do
     kilos*@tarifa_por_kilo*ajuste(porcentaje_verdes)
   end
 
-  #Funcion ajuste devuelve el multiplicador para calcular por porcentaje de verdes
+  #Funcion ajuste devuelve el multiplicador para calcular el valor del pesaje definido porcentaje el de verdes
   def ajuste(porcentaje_verdes) when porcentaje_verdes <= 2, do: @menor_2_porciento
   def ajuste(porcentaje_verdes) when porcentaje_verdes <=5, do: @entre_2_y_5_porciento
   def ajuste(porcentaje_verdes) when porcentaje_verdes <=10, do: @entre_5_y_10_porciento
   def ajuste(porcentaje_verdes) when porcentaje_verdes > 10, do: @mayor_a_10_porciento
+
+  #Funcion para devolver la bonificacion dependiendo el los kilos del dia
+  def bonificacion(kilos) when kilos >= @kilos_para_bonificacion, do: @bonificacion_120_kg
+  def bonificacion(_kilos), do: 0.0
+
+  #Funcion para devolver el numero a descontar segun la alimentacion y los dias trabajados
+  def descuento_alimentacion(true, dias_trabajados), do: dias_trabajados*@descuento_alimentacion
+  def descuento_alimentacion(false, _dias_trabajados), do: 0.0
 
 end
