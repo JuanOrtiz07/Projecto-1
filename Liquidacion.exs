@@ -20,7 +20,7 @@ defmodule Liquidacion do
   @mayor_a_10_porciento 0.7
 
   # Atributo de los kilos a alcanzar para obtener la bonificacion por kg
-  @kilos_para_bonificacion 120
+  @kilos_para_bonificacion 120.0
 
   # Bonificacion por 120 kilogramos o mas >=
   @bonificacion_120_kg 8_000.0
