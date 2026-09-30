@@ -1,18 +1,16 @@
 defmodule Reportes do
 
-  def generar_r1(pesajes_evaluados) do
-    rechazados = Enum.filter(pesajes_evaluados, fn pesaje ->
-      case pesaje do
-        {:error, _motivo} -> true
-        _ -> false
-      end
-    end)
-
-    conteos = Enum.frequencies_by(rechazados, fn {:error, motivo} ->
+  @doc """
+  R1. Toma la lista de pesajes rechazados (generada por Validacion.validar_pesajes)
+  y calcula cuántos rechazos ocurrieron por cada motivo.
+  """
+  def generar_r1(rechazados_crudos) do
+    # La lista ya contiene exclusivamente los errores estructurados como {mapa_pesaje, motivo}
+    conteos = Enum.frequencies_by(rechazados_crudos, fn {_pesaje, motivo} ->
       motivo
     end)
-
-    {rechazados, conteos}
+    # Devolvemos la lista y los conteos mapeados listos para el Programa
+    {rechazados_crudos, conteos}
   end
 
   def generar_r2(pesajes_validos, lista_lotes) do
@@ -65,15 +63,15 @@ defmodule Reportes do
       %{
         nombre: liq.nombre,
         kilos: liq.kilos,
-        pesajes_formateado: :erlang.float_to_binary(liq.pesajes_total * 1.0, decimals: 2),
-        bono_formateado: :erlang.float_to_binary(liq.bonificaciones * 1.0, decimals: 2),
-        alimentacion_formateada: :erlang.float_to_binary(liq.alimentacion * 1.0, decimals: 2),
-        neto_formateado: :erlang.float_to_binary(liq.neto * 1.0, decimals: 2)
+        pesajes_formateado: Util.formatear_decimal(liq.pesajes_total),
+        bono_formateado: Util.formatear_decimal(liq.bonificaciones),
+        alimentacion_formateada: Util.formatear_decimal(liq.alimentacion),
+        neto_formateado: Util.formatear_decimal(liq.neto)
       }
     end
   end
 
-  def generar_r5(pesajes_validos, dias_de_cosecha, lista_recolectores) do
+  def generar_r5(pesajes_validos, dias_de_cosecha, _lista_recolectores) do
     pesajes_por_dia = Enum.group_by(pesajes_validos, fn p -> p.dia end)
     reporte_diario = for dia <- dias_de_cosecha do
       pesajes_del_dia = Map.get(pesajes_por_dia, dia, [])
@@ -105,7 +103,7 @@ defmodule Reportes do
   end
 
 
-  def generar_r6(pesajes_validos, lista_recolectores) do
+  def generar_r6(pesajes_validos, _lista_recolectores) do
     por_recolector = Enum.group_by(pesajes_validos, fn p -> p.recolector end)
     calidades = for {codigo, pesajes} <- por_recolector, length(pesajes) >= 3 do
       suma_productos = Enum.sum(for p <- pesajes, do: p.verdes * p.kilos)
@@ -128,7 +126,7 @@ defmodule Reportes do
   end
 
 
-  def generar_r8(pesajes_validos, lista_lotes, lista_recolectores) do
+  def generar_r8(pesajes_validos, lista_lotes, _lista_recolectores) do
     total_lotes_finca = length(lista_lotes)
     por_recolector = Enum.group_by(pesajes_validos, fn p -> p.recolector end)
     cumplen = for {codigo, pesajes} <- por_recolector do

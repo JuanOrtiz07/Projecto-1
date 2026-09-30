@@ -63,4 +63,8 @@ defmodule Util do
     end
   end
 
+  def formatear_decimal(valor) do
+    :erlang.float_to_binary(valor * 1.0, decimals: 2)
+  end
+
 end
