@@ -1,15 +1,13 @@
 defmodule Reportes do
-
-  @doc """
-  R1. Toma la lista de pesajes rechazados (generada por Validacion.validar_pesajes)
-  y calcula cuántos rechazos ocurrieron por cada motivo.
+  @moduledoc """
+  Módulo encargado exclusivamente de procesar y estructurar los datos
+  de los 8 reportes de forma funcional y pura.
   """
+
   def generar_r1(rechazados_crudos) do
-    # La lista ya contiene exclusivamente los errores estructurados como {mapa_pesaje, motivo}
     conteos = Enum.frequencies_by(rechazados_crudos, fn {_pesaje, motivo} ->
       motivo
     end)
-    # Devolvemos la lista y los conteos mapeados listos para el Programa
     {rechazados_crudos, conteos}
   end
 
@@ -34,7 +32,6 @@ defmodule Reportes do
       lote_procesado.rendimiento
     end, :desc)
   end
-
 
   def generar_r3(pesajes_validos, dias_de_cosecha, meta_diaria) do
     pesajes_por_dia = Enum.group_by(pesajes_validos, fn pesaje -> pesaje.dia end)
@@ -63,7 +60,7 @@ defmodule Reportes do
       %{
         nombre: liq.nombre,
         kilos: liq.kilos,
-        pesajes_formateado: Util.formatear_decimal(liq.pesajes_total),
+        pesajes_formateado: Util.formatear_decimal(liq.bruto),
         bono_formateado: Util.formatear_decimal(liq.bonificaciones),
         alimentacion_formateada: Util.formatear_decimal(liq.alimentacion),
         neto_formateado: Util.formatear_decimal(liq.neto)
@@ -94,14 +91,13 @@ defmodule Reportes do
     todos_los_ganadores = List.flatten(for r <- dias_ganados, do: r.ganadores)
     frecuencias = Enum.frequencies(todos_los_ganadores)
     if frecuencias == %{} do
-      {:sin_ganadores, 0}
+      {reporte_diario, [], 0}
     else
       max_dias = Enum.max_by(Map.to_list(frecuencias), fn {_cod, dias} -> dias end) |> elem(1)
       mejores_semana = Enum.filter(Map.to_list(frecuencias), fn {_cod, dias} -> dias == max_dias end)
-      {mejores_semana, max_dias}
+      {reporte_diario, mejores_semana, max_dias}
     end
   end
-
 
   def generar_r6(pesajes_validos, _lista_recolectores) do
     por_recolector = Enum.group_by(pesajes_validos, fn p -> p.recolector end)
@@ -114,7 +110,8 @@ defmodule Reportes do
     if calidades == [] do
       :no_aplica
     else
-      Enum.min_by(calidades, fn c -> c.percentage_ponderado end)
+      # Corrección estricta de la clave en español :porcentaje_ponderado
+      Enum.min_by(calidades, fn c -> c.porcentaje_ponderado end)
     end
   end
 
@@ -125,7 +122,6 @@ defmodule Reportes do
     {total_pagado, total_kilos_validos, promedio_kilo}
   end
 
-
   def generar_r8(pesajes_validos, lista_lotes, _lista_recolectores) do
     total_lotes_finca = length(lista_lotes)
     por_recolector = Enum.group_by(pesajes_validos, fn p -> p.recolector end)
@@ -134,5 +130,21 @@ defmodule Reportes do
       if length(lotes_visitados) == total_lotes_finca, do: codigo, else: nil
     end
     Enum.reject(cumplen, fn x -> is_nil(x) end)
+  end
+
+  def ranking(liquidaciones, opciones) do
+    campo = Keyword.get(opciones, :campo, :neto)
+    orden = Keyword.get(opciones, :orden, :desc)
+    limite = Keyword.get(opciones, :limite, length(liquidaciones))
+
+    liquidaciones
+    |> Enum.sort_by(fn liq -> Map.get(liq, campo) end, orden)
+    |> Enum.take(limite)
+  end
+
+  def combiner_fincas(mapa_finca, finca_vecina) do
+    Map.merge(mapa_finca, finca_vecina, fn _dia, kg_finca, kg_vecina ->
+      kg_finca + kg_vecina
+    end)
   end
 end
