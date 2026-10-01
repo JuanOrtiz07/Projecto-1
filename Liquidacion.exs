@@ -34,10 +34,10 @@ defmodule Liquidacion do
   end
 
   # Funcion ajuste devuelve el multiplicador para calcular el valor del pesaje definido porcentaje el de verdes
-  def ajuste(porcentaje_verdes) when porcentaje_verdes <= 2, do: @menor_2_porciento
-  def ajuste(porcentaje_verdes) when porcentaje_verdes <= 5, do: @entre_2_y_5_porciento
-  def ajuste(porcentaje_verdes) when porcentaje_verdes <= 10, do: @entre_5_y_10_porciento
-  def ajuste(porcentaje_verdes) when porcentaje_verdes > 10, do: @mayor_a_10_porciento
+  def ajuste(porcentaje_verdes) when porcentaje_verdes <= 2.0, do: @menor_2_porciento
+  def ajuste(porcentaje_verdes) when porcentaje_verdes <= 5.0, do: @entre_2_y_5_porciento
+  def ajuste(porcentaje_verdes) when porcentaje_verdes <= 10.0, do: @entre_5_y_10_porciento
+  def ajuste(porcentaje_verdes) when porcentaje_verdes > 10.0, do: @mayor_a_10_porciento
 
   # Funcion para devolver la bonificacion dependiendo el los kilos del dia
   def bonificacion(kilos) when kilos >= @kilos_para_bonificacion, do: @bonificacion_120_kg
