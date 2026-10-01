@@ -34,10 +34,10 @@ defmodule Liquidacion do
   end
 
   # Funcion ajuste devuelve el multiplicador para calcular el valor del pesaje definido porcentaje el de verdes
-  def ajuste(porcentaje_verdes) when porcentaje_verdes <= 2, do: @menor_2_porciento
-  def ajuste(porcentaje_verdes) when porcentaje_verdes <= 5, do: @entre_2_y_5_porciento
-  def ajuste(porcentaje_verdes) when porcentaje_verdes <= 10, do: @entre_5_y_10_porciento
-  def ajuste(porcentaje_verdes) when porcentaje_verdes > 10, do: @mayor_a_10_porciento
+  def ajuste(porcentaje_verdes) when porcentaje_verdes <= 2.0, do: @menor_2_porciento
+  def ajuste(porcentaje_verdes) when porcentaje_verdes <= 5.0, do: @entre_2_y_5_porciento
+  def ajuste(porcentaje_verdes) when porcentaje_verdes <= 10.0, do: @entre_5_y_10_porciento
+  def ajuste(porcentaje_verdes) when porcentaje_verdes > 10.0, do: @mayor_a_10_porciento
 
   # Funcion para devolver la bonificacion dependiendo el los kilos del dia
   def bonificacion(kilos) when kilos >= @kilos_para_bonificacion, do: @bonificacion_120_kg
@@ -49,21 +49,23 @@ defmodule Liquidacion do
 
   # Funcion de liquidacion total
   def liquidar(recolector, pesajes_validos) do
-    # se crea una "lista_kilos" recibe solo los kilos del pesaje
+    # Extrae los kilos de cada pesaje en una lista nueva
     lista_kilos = Enum.map(pesajes_validos, fn pesaje -> pesaje.kilos end)
 
-    # Esta funcion suma la lista de Kg
+    # Suma la lista de kilos
     kilos_totales = Enum.sum(lista_kilos)
 
-    # Esta funcion calcula la lista de valores por cada pesaje usando la funcion de valor_pesaje()
+    # Calcula el valor de cada pesaje con valor_pesaje
     lista_de_valores =
       Enum.map(pesajes_validos, fn pesaje -> valor_pesaje(pesaje.kilos, pesaje.verdes) end)
 
-    # Esta funcion calcula la sumatoria de los valores del pesaje
+    # Suma los valores de los pesajes (bruto)
     bruto = Enum.sum(lista_de_valores)
 
+    # Crea un Mapa %{dia => kilos del día}
     kilos_por_dia = sumar_kilos_por_dia(pesajes_validos)
 
+    # Lista con solo los kilos de cada día, por ejemplo [125, 90]
     lista_kilos_por_dia = Map.values(kilos_por_dia)
 
     # Lista con la bonificación de cada día, por ejemplo [8000.0, 0.0]
@@ -73,13 +75,16 @@ defmodule Liquidacion do
     # Un solo número: la suma de las bonificaciones
     bonificaciones = Enum.sum(lista_bonificaciones)
 
-    # Esta funcion calcula los dias trabajados
+    # Traer los dias trabajados con map.size ya que un dia trabajado seria una entrada del mapa (ya validada)
     dias_trabajados = map_size(kilos_por_dia)
 
+    # Calcula el descuento por alimentacion
     alimentacion = descuento_alimentacion(recolector.alimentacion, dias_trabajados)
 
+    # El valor neto que recibe el trabajador
     neto = bruto + bonificaciones - alimentacion
 
+    # Mapa a devolver
     %{
       codigo: recolector.codigo,
       nombre: recolector.nombre,
@@ -92,7 +97,8 @@ defmodule Liquidacion do
     }
   end
 
-  # Funcion que calcula los kilos por dia, extrayendo de pesajes_validos
+  # Recibe la lista de pesajes válidos y devuelve un mapa %{dia => kilos del día},
+  # sumando los kilos de todos los pesajes que comparten día.
   def sumar_kilos_por_dia(pesajes_validos) do
     Enum.reduce(pesajes_validos, %{}, fn pesaje, acumulador ->
       Map.update(acumulador, pesaje.dia, pesaje.kilos, fn total ->
